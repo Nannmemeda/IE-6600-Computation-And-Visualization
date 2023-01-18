@@ -1,0 +1,507 @@
+---
+title: "Lec 1(1) Basic of R I"
+author: "Xinan Wang"
+date: "2023-01-18"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Install Required Packages
+
+install.packages('installr')
+
+install.packages('tidyverse')
+
+library(tidyverse)
+
+install.packages('rmarkdown')
+
+
+if (!requireNamespace('devtools'))
+
+  install.packages('devtools')
+  
+devtools::install_github('rstudio/rmarkdown')
+
+
+install.packages('tinytex')
+
+tinytex::install_tinytex()
+
+
+install.packages('ggplot2')
+
+install.packages('nycflights13')
+
+install.packages('gapminder')
+
+
+libs <- c('ggplot2','nycflights13','gapminder')
+
+
+x <- sapply(libs, function(x)
+
+  if (!require(
+    x,
+    character.only = T,
+    warn.conflicts = F,
+    quietly = T
+  ))
+    install.packages(x))
+
+
+# Basic Math
+
+```{r}
+
+1 + 1
+1/(1+1)
+
+```
+
+# Function in R
+
+```{r}
+
+if (sample(10,1)%in%c(1:9)) {
+  print('My students love me')
+} else {
+  'They hate me'
+}
+  
+```
+
+# Variable
+
+```{r}
+
+x <- 13
+x
+
+x = 13
+x
+
+assign('x',13)
+x
+
+# Remove variables
+x <- 13
+rm(x)
+
+```
+
+# Data Types
+
+```{r}
+
+x <- 13
+class(x)
+
+x <- 13
+is.numeric(x)
+
+x <- 3
+is.integer(x)
+
+x <- 3L
+is.integer(x)
+
+is.numeric(x)
+```
+
+# Character
+
+R has 2 primary ways of handling character data: character and factor
+
+```{r}
+
+# Store 'RStudio' to x as character data
+x <- 'RStudio'
+x
+
+# Store 'RStudio' to x as factor data by using factor function
+x <- factor('RStudio')
+x <- factor(c('a','c','D'))
+x <- factor(c(1,2,3))
+x
+
+# Length
+x <- 'RStudio'
+nchar(x)  ## nchar can only be used for character and numeric data
+
+y <- 365
+nchar(y)
+
+```
+
+# Date
+
+```{r}
+
+date <- as.Date('2022-01-17')
+date
+
+class(date)
+
+as.numeric(date)
+
+as.numeric(2022-01-17)
+
+```
+
+# Data Wrangling
+
+install.packages('stringr') # For string
+install.packages('lubridate') # For date
+install.packages('forcats') # For factor
+
+## Logical
+
+```{r}
+
+x <- 13
+is.numeric(x)
+
+x1 <- 'I am awesome'
+is.numeric(x1)
+
+is.character(x1)
+
+is.na(x1)
+
+x <- TRUE
+class(x)
+
+is.logical(x)
+
+TRUE * 5
+
+c(TRUE, TRUE, TRUE)*1
+
+FALSE * 5
+
+# Comparison
+
+1 == 1
+
+1 != 1
+
+1 < 1
+
+1 <= 2
+
+'i' == 'IE6600'
+
+'i' < 'IE6600'
+
+```
+
+## Vector
+
+A vector is a collection of elements, all of the same type. A vector cannot be of mixed type.
+
+Vectors don't have dimensions
+
+Column or row vectors can be represented as one-dimensional matrices.
+
+```{r}
+
+x <- c('IE6600', 'Data', 'Visulization')
+
+class(x)
+
+y <- c(2,3)
+
+class(y)
+
+x <- c(1,2,3,4,5)
+x
+
+y <- c(1:5)
+y
+
+x * 3
+
+y^2
+
+sqrt(x)
+
+length(x)
+
+length(y)
+
+x + y
+
+x * y
+
+x / y
+
+x^y
+
+x <- c(1:5)
+x + c(1,2) ## 1+1 2+2 3+1 4+2 5+1
+
+x <= 3
+
+nchar(x)
+
+c('I', 'am', 'beautiful')
+
+c(One='I', Two='am', Three='beautiful')
+
+x <- c(5:10)
+
+x[2]
+
+x[c(1,3)]
+
+x[1:3]
+
+```
+
+
+## Factor
+
+```{r}
+
+x <- c('I','am','awesome')
+x
+
+x <- as.factor(x)
+x
+
+x <- factor(x, levels=c('I','awesome','am'))
+x
+
+```
+
+## Missing Data
+
+R has 2 types of missing data: NA and NULL. Similar but behave differently
+
+### NA
+
+NA will often be seen as just another element of a vector. is.na tests each element of a vector for missingness
+
+```{r}
+
+x <- c(1,2,3,NA,5)
+x
+
+length(x)
+
+is.na(x)
+
+```
+
+### NULL
+
+NULL is nothingness. Functions can sometimes return NULL and their arguments can be NULL
+
+NULL is often returned by expressions and functions whose value is undefined
+
+NULL is atomical and cannot exist within a vector.
+
+```{r}
+
+x <- c(1,2,3,NULL,5)
+
+length(x)
+
+is.null(x)
+
+```
+
+# Call Functions
+
+```{r}
+
+mean(c(1,2,3))
+
+sum(c(1,2,3))
+
+```
+
+# Pipe
+
+```{r}
+
+library(magrittr)
+library(dplyr)
+
+y <- c(1,2,3)
+mean(y)
+
+c(1,2,3) %>% mean
+
+```
+
+# Advanced Data Structures
+
+The most common are data frame, matrix, and list.
+
+## Data Frames
+
+R organized data.frame, each column is actually a vector, each of which has the same length. Within a column each element must be of the same type
+
+```{r}
+
+x <- 1:5
+y <- -1:3
+a <- c('I','am','an','awesome','student')
+
+xya.df <- data.frame(x,y,a)
+xya.df
+
+xya.df <- data.frame(1:5, -1:3, a)
+xya.df
+
+xya.df <- data.frame(first = x, second = y, third = a)
+xya.df
+
+names(xya.df) <- c(x='first', y='second', a='third')
+xya.df
+
+nrow(xya.df)
+
+ncol(xya.df)
+
+dim(xya.df)
+
+names(xya.df)
+
+head(xya.df)
+
+head(xya.df, n=3)
+
+xya.df$second
+
+xya.df$newColumn <- c(1:5)
+xya.df
+
+xya.df[5,2] # 5th row, 2th col
+
+xya.df[5,] # 5th row
+
+xya.df[c(1,2),3] # 1st & 2nd row, 3rd col
+
+class(xya.df[, 'third'])
+
+xya.df[, 'third', drop=FALSE]
+class(xya.df[, 'third', drop=FALSE])
+
+xya.df[xya.df$second > 1, ]
+
+xya.df[xya.df$second > 1, 2:3]
+
+```
+
+## List
+
+A list can contain all numeric or characters or a mix of the 2 or data.frames or recursively other lists.
+
+Lists are created with the list function where each argument to the function becomes an element of the list
+
+```{r}
+
+list(1,2,3) # Create a 3 element list
+
+list(c(1,2,3)) # Create a single element list
+
+list(c(1,2,3), 1:4) # Create a 2 element list
+
+b <- c('master','phD','undergraduate','others','master')
+list(c(1:3),b)
+
+d <- list(c(1:3),b)
+
+names(d) <- c('number','degree')
+d
+
+list1 <- list(number=1:3, degree=b)
+list1
+
+list1 <- list(number=1:3,degree=b)
+
+list1[[1]]
+
+list1[1]
+
+d <- list(number = 1:3, degree = b)
+length(d)
+
+d[[3]] <- c(7,7,7,7)
+d[['student']] <- c('John','Peter','Tome','Jerry')
+d
+
+```
+
+## Matrix
+
+```{r}
+
+A <- matrix(1:6, nrow = 3)
+A
+
+nrow(A)
+
+ncol(A)
+
+B <- matrix(2:7, nrow = 3)
+B
+
+nrow(B)
+
+ncol(B)
+
+A == B
+
+A * B
+
+```
+
+# Data Input to R
+
+```{r}
+
+readurl <- 'http://www.jaredlander.com/data/Tomato%20First.csv'
+tomato <- read.csv(readurl)
+
+tomato
+
+```
+
+## CSV data
+
+library(tidyverse)
+
+library(readr)
+
+
+tomato <- read_csv('tomato.csv')
+
+## Excel data
+
+install.packages('readxl')
+
+library(readxl)
+
+
+tomato <- read_excel('excel location')
+
+## Other types of data
+
+read.spss => SPSS
+
+read.dta => Stata
+
+read.ssd => SAS
+
+read.octave => Octave
+
+read.mtp => Minitab
+
+read.systat => Systat
