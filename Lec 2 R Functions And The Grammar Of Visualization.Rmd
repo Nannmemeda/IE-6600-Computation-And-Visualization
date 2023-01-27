@@ -1,0 +1,554 @@
+---
+title: "Lec 2 R Functions And The Grammar Of Visualization"
+author: "Xinan Wang"
+date: "2023-01-24"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Functions
+
+r functions are called like this: function_name(arg1 = val1, arg2 = val2, ...)
+
+```{r}
+
+sum(1,2)
+
+```
+
+## Create Functions
+
+variable <- function(arg1, arg2, ...) {
+  your expression / algorithm
+}
+
+```{r}
+
+hello <- function() {
+  print("Hello World!")
+}
+
+hello()
+
+```
+
+## Name Masking
+
+```{r}
+
+f <- function() {
+  x <- 1
+  y <- 2
+  c(x, y)
+}
+f()
+
+rm(f)
+
+```
+
+If a name isn't defined inside a function, R will look one level up
+
+```{r}
+
+x <- 2
+g <- function() {
+  y <- 1
+  c(x, y)
+}
+g()
+
+rm(g)
+
+```
+
+## Functions v.s. Variables
+
+```{r}
+
+n <- function(x)
+  x / 2
+o <- function() {
+  n <- 10
+  n(n)
+}
+o()
+
+rm(n, o)
+
+```
+
+```{r}
+
+f <- function(x) {
+  f <- function(x) {
+    f<- function(x) {
+      x ^ 2
+    }
+    f(x) + 1
+  }
+  f(x) * 2
+}
+f(10)
+```
+
+## Every operation is a function call
+
+```{r}
+
+x <- 1
+y <- 2
+x+y
+
+`+`(x,y)
+
+```
+
+```{r}
+
+for (i in 1:2) print(i)
+
+`for`(i, 1:2, print(i))
+
+```
+
+## Anonymous Functions
+
+function(x)3()
+
+(function(x)3)()
+
+## Return Values
+
+```{r}
+
+double.num <- function(x) {
+  x * 3
+  print("hello")
+  x * 2
+}
+double.num(5)
+
+double.num <- function(x) {
+  return(x * 3)
+  print("hello")
+  return(3)
+}
+double.num(5)
+
+```
+
+## Functions with if and else
+
+```{r}
+
+if.one <- function(x) {
+  if(x == 1) {
+    print("True")
+  }
+  else {
+    print("False")
+  }
+}
+if.one(1)
+if.one(2)
+
+
+if.one <- function(x){
+  ifelse(x==1, "TRUE", "FALSE")
+}
+if.one(1)
+if.one(2)
+
+```
+
+## Switch
+
+```{r}
+
+multipleCases <- function(x) {
+  switch(x,
+         a = "first",
+         b = "second",
+         z = "last",
+         c = "third",
+         d = "other")
+}
+multipleCases("a")
+
+```
+
+## ...
+
+```{r}
+
+f <- function(a,b,c) {
+  data.frame(a,b,c)
+}
+f(a = 1, b = 2, c = 3)
+
+```
+
+```{r}
+
+f <- function(...) {
+  data.frame(...)
+}
+f(a = 1, b = 2, c = 3, d = 5, e = 7)
+
+```
+
+
+# For Loops
+
+```{r}
+
+for (i in 1:3) {
+  print(i)
+}
+
+```
+
+```{r}
+
+fruit <- c("apple", "banana", "pomegranate")
+
+fruitlength <- rep(NA, length(fruit))
+fruitlength
+
+names(fruitlength) <- fruit
+fruitlength
+
+```
+
+```{r}
+
+for (i in fruit) {
+  fruitlength[i] <- nchar(i)
+}
+fruitlength
+
+```
+
+# Apply
+
+## apply
+
+Must be used on a matrix, meaning all the elements must be of the same type whether they are character, numeric or logical.
+
+```{r}
+
+theMatrix <- matrix(1:9, nrow = 3)
+theMatrix
+# sum the row
+apply(theMatrix, 1, sum)
+
+apply(theMatrix, 2, sum)
+
+rowSums(theMatrix)
+
+colSums(theMatrix)
+
+```
+
+## lapply, sapply
+
+Basic grammar
+
+lapply(x, FUN, ...)
+sapply(x, FUN, ...)
+
+lapply works by applying a function to each element of a list and returning the results as a list
+
+```{r}
+
+theList <- list(A = 1:3, B = 1:5, C = -1:1, D = 2)
+lapply(theList, sum)
+
+```
+
+sapply is a user-friendly version and wrapper of lapply by default returning a vector
+
+```{r}
+
+theList <- list(A = 1:3, B = 1:5, C = -1:1, D = 2)
+sapply(theList, sum)
+
+```
+
+## mapply
+
+Mapply: applies a function to each elements of multiple lists
+
+```{r}
+
+firstList <-
+  list(A = matrix(1:16, 4),
+       B = matrix(1:16, 2),
+       C = data.frame(1:5))
+secondList <-
+  list(A = matrix(1:16, 4),
+       B = matrix(1:16, 8),
+       C = data.frame(15:1))
+mapply(identical, firstList, secondList)
+
+
+simpleFunc <- function(x, y) {
+  nrow(x) + nrow(y)
+}
+mapply(simpleFunc, firstList, secondList)
+
+```
+
+# Graphics
+
+## Basic Plots
+
+• Bar chart (categorical variable vs continuous variable)
+
+• Scatter plot (continuous variable vs continuous variable)
+
+• Line chart (continuous variable vs continuous variable)
+
+• Box plot (categorical variable vs continuous variable)
+
+• Histogram (continuous variable vs continuous variable)
+
+Title of graph, scale, coordinate system, context, visual cues
+
+Components of the plots:
+• Layers: Dataset;
+          Aesthetic mapping(color, shape, size, etc)
+          Statistical transformation
+          Geometric object(line, bar, dots, etc)
+          Position adjustment
+• Scale(optional)
+• Coordinate system
+• Faceting(optional)
+• Defaults
+
+## ggplot
+
+ggplot(data = <DATASET>,
+
+      mapping = aes(<Mappings>) + 
+      
+        layer(geom = <GEOM>,
+        
+              stat = <STAT>,
+              
+              position = <POSITION>) + 
+              
+        <SCALE_FUNCTION>() + 
+        
+        <COORDINATE_FUNCTION>() +
+        
+        <FACET_FUNCTION>()
+
+```{r}
+
+df <- data.frame(
+  A = c(2, 1, 4, 9),
+  B = c(3, 2, 5, 10),
+  C = c(4, 1, 15, 80),
+  D = c("a", "a", "b", "b")
+)
+df
+```
+
+```{r}
+
+library(ggplot2)
+
+df <- data.frame(
+  A = c(2, 1, 4, 9),
+  B = c(3, 2, 5, 10),
+  C = c(4, 1, 15, 80),
+  D = c("a", "a", "b", "b")
+)
+
+ggplot(data = df,
+       mapping = aes(x = A, y = C, shape = D)) + 
+  layer(geom = "point",
+        stat = "identity",
+        position = "identity") +
+  scale_x_continuous() +
+  scale_y_continuous() +
+  coord_cartesian() + 
+  facet_null()
+ 
+```
+
+```{r}
+
+ggplot(data = df, mapping = aes(x = A, y = C, shape = D)) + 
+  geom_point() +
+  facet_grid( ~ D)
+
+```
+
+Dataset : Fuel economy in cars
+
+```{r}
+
+library(tidyverse)
+
+head(mpg, 5)
+
+# Interviewing data
+
+mpg[,c("displ","hwy")]
+
+# Creating base
+
+ggplot(data = mpg)
+
+# Creating plot
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+```
+
+### Aesthetic Mappings
+
+Aesthetic mappings: We can change levels of size, shape, color, fill, alpha etc. inside of aes()
+
+```{r}
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+
+```
+
+Aesthetic mappings: outside of aes()
+
+• The name of a color as character string
+
+• The size of a point in mm
+
+• The shape of a point as a number
+
+### geom_() functions
+
+• geom_bar: bar chart
+
+• geom_histogram: histogram
+
+• geom_point: scatterplot
+
+• geom_qq: quantile-quantile plot
+
+• geom_boxplot: boxplot
+
+• geom_line: line chart
+
+```{r}
+
+geom_line
+
+```
+
+• Use geom_ function to make variables visible on the screen
+
+• Use stat_ function and define geom shape as an argument inside geom_.
+
+• Or use geom_ and define statistical transformation as an argument inside stat_.
+
+Common geom with position adjustments:
+
+geom_point, geom_jitter
+
+### Scale syntax
+
+labs() xlab() ylab() ggtitle() lim() xlim() ylim()
+scale_colour_brewer() scale_colour_continuous()
+
+```{r}
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = hwy)) + 
+  scale_colour_continuous(type = "viridis")
+
+```
+
+```{r}
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  coord_polar()
+
+```
+
+### Faceting
+
+grid:
+
+```{r}
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(.~year)
+
+```
+
+wrap:
+
+```{r}
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(.~cyl)
+
+```
+
+## A more complicated embedded grammer
+
+```{r}
+
+troops <- read.table("minard-troops.txt", header = T)
+cities <- read.table("minard-cities.txt", header = T)
+
+head(troops)
+
+head(cities)
+
+```
+
+```{r}
+
+plot_troops <- ggplot(troops, aes(long, lat)) +
+  geom_path(aes(size = survivors, colour = direction, group = group))
+plot_troops
+
+```
+
+```{r}
+
+plot_both <- plot_troops +
+  geom_text(aes(label = city), size = 4, data = cities)
+plot_both
+
+```
+
+```{r}
+
+library(mapproj)
+
+plot_polished <- plot_both +
+  scale_size(
+    range = c(0, 12),
+    # breaks = c(10000, 20000, 30000),
+    # labels = c("10,000", "20,000", "30,000")
+  ) +
+  scale_color_manual(values = c("tan", "grey50")) + 
+  coord_map() +
+  labs(title = "Map of Napoleon's Russian campaign of 1812") + 
+  theme_void() +
+  theme(legend.position = "none")
+plot_polished
+
+```

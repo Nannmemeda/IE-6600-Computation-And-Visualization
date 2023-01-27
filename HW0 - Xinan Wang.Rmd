@@ -1,0 +1,88 @@
+---
+title: "HW0 - Xinan Wang"
+author: "Xinan Wang"
+date: "2023-01-26"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# echo=T to show the code, eval=T to show the results ----
+knitr::opts_chunk$set(echo = T, eval=T) 
+# Pre-load packages ----
+library(tidyverse) 
+```
+
+```{r}
+
+getwd()
+
+```
+
+# Section A
+
+```{r}
+
+# Reference: https://data.census.gov/table?q=United+States
+
+# Import the dataset into R studio
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(ggrepel)
+library(scales)
+
+race <- read_excel("DECENNIALPL2020.P1-2023-01-26T201630.xlsx")
+head(race)
+
+```
+
+## Plot 1: The Percentage Of Different Races Count Population
+
+```{r}
+
+race_num <- race %>% filter(
+  Label %in% c("Population of one race", "Population of two races", "Population of three races", "Population of four races", "Population of five races","Population of six races")
+)
+
+total <- race %>% filter(Label == "Total:")
+total$Population
+
+race_num <- race_num %>% mutate(percent = round(100 * Population / total$Population, digit = 4))
+race_num
+
+ggplot(race_num, aes(x = "", y = percent, fill = Label)) +
+  geom_bar(stat="identity",width = 3, color = 1) +
+  coord_polar("y", start = 0) + 
+  geom_label_repel(data = race_num, 
+                   aes(label = paste0(percent, "%")), size = 3.5, nudge_x = 1, show.legend = FALSE) +
+  ggtitle("Percentage Of Different Race Counts Population")
+
+```
+
+## Plot 2: United States Race Population (Inside Population Of One Race)
+
+```{r}
+
+race_alone <- race %>% filter(Label %in% c("White alone", "Black or African American alone", "American Indian and Alaska Native alone", "Asian alone", "Native Hawaiian and Other Pacific Islander alone","Some Other Race alone"))
+
+race_alone$Label[race_alone$Label == "White alone"] <- "White"
+race_alone$Label[race_alone$Label == "Black or African American alone"] <- "Black"
+race_alone$Label[race_alone$Label == "American Indian and Alaska Native alone"] <- "Native"
+race_alone$Label[race_alone$Label == "Asian alone"] <- "Asian"
+race_alone$Label[race_alone$Label == "Native Hawaiian and Other Pacific Islander alone"] <- "Pacific Islander"
+race_alone$Label[race_alone$Label == "Some Other Race alone"] <- "Others"
+
+
+
+
+ggplot(race_alone, aes(x = Label, y = Population, fill = Label)) + 
+  geom_line() +
+  scale_color_manual(values = c("pink","brown", "red", "yellow", "green", "cyan")) +
+  geom_bar(stat = "identity", width = 0.75, color = "black") + 
+  scale_y_continuous(labels = scales::comma) +
+  geom_text(aes(label = format(Population, big.mark = ",")), position = position_dodge(width = 0.4), vjust = -0.5) + 
+  ggtitle("Population Of Each Races (Inside Population Of One Race Group)")
+
+```
